@@ -1,9 +1,9 @@
 import test from 'ava';
 
-import { pickData, toNewFormat } from '../lib/data-formatter';
+import { pickData, toNewFormat } from '../../lib/data-formatter';
 
-const oldFormat = require('./fixtures/format-0.json');
-const newFormat = require('./fixtures/format-1.json');
+const oldFormat = require('../fixtures/format-0.json');
+const newFormat = require('../fixtures/format-1.json');
 
 test('toNewFormat should format old format to new format', t => {
     const result = toNewFormat(oldFormat);
