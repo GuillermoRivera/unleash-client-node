@@ -2,7 +2,7 @@ import test from 'ava';
 import { writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { Storage } from '../lib/storage';
+import { Storage } from '../../lib/storage';
 import * as mkdirp from 'mkdirp';
 
 function setup(name) {

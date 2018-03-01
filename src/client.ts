@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { Strategy, StrategyTransportInterface } from './strategy/index';
 import { FeatureInterface } from './feature';
 import { Variant } from './variant';
-import Repository from './repository';
+import { Repository } from './repository/index';
 import { Experiment } from './strategy/strategy';
 import { experiment } from './index';
 
