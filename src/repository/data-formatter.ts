@@ -1,4 +1,4 @@
-import { FeatureInterface } from './feature';
+import { FeatureInterface } from '../feature';
 
 export interface FeaturesBase {
     features: FeatureInterface[];
