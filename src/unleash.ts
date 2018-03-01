@@ -1,5 +1,5 @@
 import Client from './client';
-import Repository from './repository';
+import { Repository, ObjectRepository, ServerRepository } from './repository/index';
 import Metrics from './metrics';
 import { Strategy, defaultStrategies } from './strategy/index';
 export { Strategy } from './strategy/index';
@@ -7,6 +7,7 @@ import { tmpdir } from 'os';
 import { EventEmitter } from 'events';
 import { userInfo, hostname } from 'os';
 import { FeatureInterface } from './feature';
+import { FeaturesInterface } from './features';
 import { Variant } from './variant';
 
 const BACKUP_PATH: string = tmpdir();
@@ -18,6 +19,7 @@ export interface CustomHeaders {
 export interface UnleashConfig {
     appName: string;
     instanceId?: string;
+    features: FeaturesInterface;
     url: string;
     refreshInterval?: number;
     metricsInterval?: number;
@@ -35,6 +37,7 @@ export class Unleash extends EventEmitter {
     constructor({
         appName,
         instanceId,
+        features,
         url,
         refreshInterval = 15 * 1000,
         metricsInterval = 60 * 1000,
@@ -45,27 +48,33 @@ export class Unleash extends EventEmitter {
     }: UnleashConfig) {
         super();
 
-        if (!url) {
-            throw new Error('Unleash server URL missing');
-        }
-
-        if (url.endsWith('/features')) {
-            const oldUrl = url;
-            process.nextTick(() =>
-                this.emit(
-                    'warn',
-                    `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
-                ),
-            );
-            url = url.replace(/\/features$/, '');
-        }
-
-        if (!url.endsWith('/')) {
-            url += '/';
-        }
-
         if (!appName) {
             throw new Error('Unleash client appName missing');
+        }
+
+        if (!features && !url) {
+            throw new Error('Features or Unleash server URL missing');
+        }
+
+        if (features && url) {
+            throw new Error('Features and Unleash server URL cannot be used together');
+        }
+
+        if (url) {
+            if (url.endsWith('/features')) {
+                const oldUrl = url;
+                process.nextTick(() =>
+                    this.emit(
+                        'warn',
+                        `Unleash server URL "${oldUrl}" should no longer link directly to /features`,
+                    ),
+                );
+                url = url.replace(/\/features$/, '');
+            }
+
+            if (!url.endsWith('/')) {
+                url += '/';
+            }
         }
 
         if (!instanceId) {
@@ -83,14 +92,18 @@ export class Unleash extends EventEmitter {
             instanceId = `${prefix}-${hostname()}`;
         }
 
-        this.repository = new Repository({
-            backupPath,
-            url,
-            appName,
-            instanceId,
-            refreshInterval,
-            headers: customHeaders,
-        });
+        if (features) {
+            this.repository = new ObjectRepository({ features });
+        } else if (url) {
+            this.repository = new ServerRepository({
+                backupPath,
+                url,
+                appName,
+                instanceId,
+                refreshInterval,
+                headers: customHeaders,
+            });
+        }
 
         strategies = defaultStrategies.concat(strategies);
 
@@ -110,6 +123,9 @@ export class Unleash extends EventEmitter {
             this.emit('warn', msg);
         });
 
+        if (!url) {
+            disableMetrics = true;
+        }
         this.metrics = new Metrics({
             disableMetrics,
             appName,

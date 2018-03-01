@@ -43,10 +43,20 @@ function mockNetwork(toggles = defaultToggles, url = getUrl()) {
     return url;
 }
 
-test('should error when missing url', t => {
+test('should error when missing required options', t => {
     t.throws(() => new Unleash({}));
+    t.throws(() => new Unleash({ features: false }));
     t.throws(() => new Unleash({ url: false }));
+    t.throws(() => new Unleash({ features: {}, appName: false }));
     t.throws(() => new Unleash({ url: 'http://unleash.github.io', appName: false }));
+    t.throws(() => new Unleash({ features: {}, appName: false }));
+});
+
+test('should error when incompatible options are used', t => {
+    t.throws(() => new Unleash({ features: {}, url: 'http://unleash.github.io', appName: false }));
+    t.throws(
+        () => new Unleash({ features: {}, url: 'http://unleash.github.io', appName: 'my-app' })
+    );
 });
 
 test.cb('should handle old url', t => {
@@ -171,6 +181,38 @@ test('should allow request even before unleash is initialized', t => {
     t.true(instance.isEnabled('unknown') === false);
     instance.destroy();
 });
+
+test('should evaluate known feature/experiment from static features', t =>
+    new Promise((resolve, reject) => {
+        const instance = new Unleash({
+            appName: 'foo',
+            backupPath: getRandomBackupPath(),
+            features: {
+                version: '2',
+                features: [
+                    {
+                        name: 'feature',
+                        enabled: true,
+                        strategies: [{ name: 'default' }],
+                    },
+                    {
+                        name: 'experiment',
+                        enabled: true,
+                        strategies: [{ name: 'default' }, { name: 'control' }],
+                        variants: [{ name: 'control' }],
+                    },
+                ],
+            },
+            strategies: [new ControlExperiment()],
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            t.true(instance.isEnabled('feature'));
+            t.true(instance.experiment('experiment').name === 'control');
+            instance.destroy();
+            resolve();
+        });
+    }));
 
 test('should consider known feature-toggle as active', t =>
     new Promise((resolve, reject) => {

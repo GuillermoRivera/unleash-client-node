@@ -2,7 +2,7 @@ import test from 'ava';
 import { EventEmitter } from 'events';
 import nock from 'nock';
 
-import Repository from '../lib/repository';
+import { ServerRepository } from '../../lib/repository/server-repository';
 
 const appName = 'foo';
 const instanceId = 'bar';
@@ -43,7 +43,7 @@ test.cb('should fetch from endpoint', t => {
     };
 
     setup(url, [feature]);
-    const repo = new Repository({
+    const repo = new ServerRepository({
         backupPath: 'foo',
         url,
         appName,
@@ -67,7 +67,7 @@ test('should poll for changes', t =>
     new Promise((resolve, reject) => {
         const url = 'http://unleash-test-2.app';
         setup(url, []);
-        const repo = new Repository({
+        const repo = new ServerRepository({
             backupPath: 'foo-bar',
             url,
             appName,
@@ -94,7 +94,7 @@ test('should store etag', t =>
     new Promise(resolve => {
         const url = 'http://unleash-test-3.app';
         setup(url, [], { Etag: '12345' });
-        const repo = new Repository({
+        const repo = new ServerRepository({
             backupPath: 'foo',
             url,
             appName,
@@ -118,7 +118,7 @@ test.cb('should request with etag', t => {
         .get('/client/features')
         .reply(200, { features: [] }, { Etag: '12345-2' });
 
-    const repo = new Repository({
+    const repo = new ServerRepository({
         backupPath: 'foo',
         url,
         appName,
@@ -144,7 +144,7 @@ test.cb('should request with custom headers', t => {
         .get('/client/features')
         .reply(200, { features: [] }, { Etag: '12345-3' });
 
-    const repo = new Repository({
+    const repo = new ServerRepository({
         backupPath: 'foo',
         url,
         appName,
@@ -171,7 +171,7 @@ test.cb('should handle 404 request error and emit error event', t => {
         .get('/client/features')
         .reply(404, 'asd');
 
-    const repo = new Repository({
+    const repo = new ServerRepository({
         backupPath: 'foo',
         url,
         appName,
@@ -197,7 +197,7 @@ test('should handle 304 as silent ok', t => {
             .get('/client/features')
             .reply(304, '');
 
-        const repo = new Repository({
+        const repo = new ServerRepository({
             backupPath: 'foo',
             url,
             appName,
@@ -219,7 +219,7 @@ test('should handle invalid JSON response', t =>
             .get('/client/features')
             .reply(200, '{"Invalid payload');
 
-        const repo = new Repository({
+        const repo = new ServerRepository({
             backupPath: 'foo',
             url,
             appName,
@@ -247,7 +247,7 @@ test.cb('should emit errors on invalid features', t => {
             strategies: false,
         },
     ]);
-    const repo = new Repository({
+    const repo = new ServerRepository({
         backupPath: 'foo',
         url,
         appName,

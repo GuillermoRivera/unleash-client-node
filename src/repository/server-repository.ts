@@ -1,16 +1,17 @@
 import { EventEmitter } from 'events';
 import { toNewFormat, pickData } from './data-formatter';
 import { Storage } from './storage';
-import { FeatureInterface } from './feature';
+import { FeatureInterface } from '../feature';
 import { resolve } from 'url';
-import { get } from './request';
-import { CustomHeaders } from './unleash';
+import { get } from '../request';
+import { CustomHeaders } from '../unleash';
+import { Repository } from './repository';
 
 export interface StorageImpl {
     new (Storage);
 }
 
-export interface RepositoryOptions {
+export interface ServerRepositoryOptions {
     backupPath: string;
     url: string;
     appName: string;
@@ -20,7 +21,7 @@ export interface RepositoryOptions {
     headers?: CustomHeaders;
 }
 
-export default class Repository extends EventEmitter implements EventEmitter {
+export class ServerRepository extends Repository {
     private timer: NodeJS.Timer;
     private url: string;
     private storage: Storage;
@@ -38,7 +39,7 @@ export default class Repository extends EventEmitter implements EventEmitter {
         refreshInterval,
         StorageImpl = Storage,
         headers,
-    }: RepositoryOptions) {
+    }: ServerRepositoryOptions) {
         super();
         this.url = url;
         this.refreshInterval = refreshInterval;
