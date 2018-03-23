@@ -21,6 +21,10 @@ class MockStorage extends EventEmitter {
     get(name) {
         return this.data[name];
     }
+
+    getAll() {
+        return this.data;
+    }
 }
 
 function setup(url, toggles, headers = {}) {
@@ -62,6 +66,46 @@ test.cb('should fetch from endpoint', t => {
         t.end();
     });
 });
+
+test('resolves all the toggles', t =>
+    new Promise((resolve, reject) => {
+        const url = 'http://unleash-test-all-toggles.app';
+        const features = [
+            {
+                name: 'foo',
+                enabled: true,
+                strategies: [],
+            },
+            {
+                name: 'bar',
+                enabled: true,
+                strategies: [],
+            },
+        ];
+
+        setup(url, features);
+        const repo = new ServerRepository({
+            backupPath: 'foo',
+            url,
+            appName,
+            instanceId,
+            refreshInterval: 0,
+            StorageImpl: MockStorage,
+        });
+
+        repo.once('data', () => {
+            const toggles = repo.getToggles();
+            t.truthy(toggles);
+            t.true(toggles.length === 2);
+            t.true(toggles[0].name === 'foo');
+            t.true(toggles[1].name === 'bar');
+            resolve();
+        });
+        repo.on('error', reject);
+    }));
+
+// test('resolves all the toggles', t => {
+// });
 
 test('should poll for changes', t =>
     new Promise((resolve, reject) => {

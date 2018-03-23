@@ -141,4 +141,9 @@ export class ServerRepository extends Repository {
     getToggle(name: string): FeatureInterface {
         return this.storage.get(name);
     }
+
+    getToggles(): FeatureInterface[] {
+        const data = this.storage.getAll();
+        return Object.keys(data).map(k => data[k]);
+    }
 }

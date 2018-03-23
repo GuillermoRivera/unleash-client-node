@@ -7,5 +7,6 @@ export abstract class Repository extends EventEmitter implements EventEmitter {
     }
 
     abstract getToggle(name: string): FeatureInterface;
+    abstract getToggles(): FeatureInterface[];
     abstract stop(): void;
 }

@@ -33,5 +33,9 @@ export class ObjectRepository extends Repository {
         return this.features[name];
     }
 
+    getToggles(): FeatureInterface[] {
+        return this.spec.features;
+    }
+
     stop(): void {}
 }
