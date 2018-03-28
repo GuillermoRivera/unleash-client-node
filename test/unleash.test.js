@@ -305,6 +305,26 @@ test('should not throw when os.userInfo throws', t => {
     });
 });
 
+test('should return all feature-toggle definitions', t =>
+    new Promise((resolve, reject) => {
+        const url = mockNetwork();
+        const instance = new Unleash({
+            appName: 'foo',
+            disableMetrics: true,
+            url,
+            backupPath: getRandomBackupPath(),
+        }).on('error', reject);
+
+        instance.on('ready', () => {
+            const toggles = instance.getToggles();
+            t.truthy(toggles);
+            t.true(toggles.length === 1);
+            t.true(toggles[0].name === 'feature');
+            instance.destroy();
+            resolve();
+        });
+    }));
+
 test('should return known feature-toggle definition', t =>
     new Promise((resolve, reject) => {
         const url = mockNetwork();

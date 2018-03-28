@@ -179,6 +179,10 @@ export class Unleash extends EventEmitter {
         return result;
     }
 
+    getToggles(): FeatureInterface[] {
+        return this.repository.getToggles();
+    }
+
     getFeatureToggleDefinition(toggleName: string): FeatureInterface {
         return this.repository.getToggle(toggleName);
     }

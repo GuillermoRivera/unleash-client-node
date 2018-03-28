@@ -4,6 +4,7 @@ import {
     isEnabled,
     Strategy,
     destroy,
+    getToggles,
     getFeatureToggleDefinition,
     count,
     experiment,
@@ -28,6 +29,7 @@ test('should load main module', t => {
     t.truthy(isEnabled);
     t.truthy(Strategy);
     t.truthy(destroy);
+    t.truthy(getToggles);
     t.truthy(getFeatureToggleDefinition);
     t.truthy(count);
     t.truthy(experiment);

@@ -20,6 +20,10 @@ export function destroy() {
     return instance && instance.destroy();
 }
 
+export function getToggles() {
+    return instance && instance.getToggles();
+}
+
 export function getFeatureToggleDefinition(toggleName: string) {
     return instance && instance.getFeatureToggleDefinition(toggleName);
 }
